@@ -15,7 +15,7 @@ typedef enum
 
 #define FT4_SYMBOL_PERIOD (0.048f) ///< FT4 symbol duration, defines tone deviation in Hz and symbol rate
 #define FT4_SLOT_TIME     (7.5f)   ///< FT4 slot period
-#define FT4_SAMPLERATE (12000.0f)  
+#define FT4_SAMPLERATE    (12000)  
 
 #define FT8_SYMBOL_BT 2.0f ///< symbol smoothing filter bandwidth factor (BT)
 #define FT4_SYMBOL_BT 1.0f ///< symbol smoothing filter bandwidth factor (BT)

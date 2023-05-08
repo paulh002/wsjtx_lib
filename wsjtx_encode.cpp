@@ -7,7 +7,6 @@
 
 std::vector<float> wsjtx_encode::encode_ft84(wsjtxMode mode, int frequency, std::string message)
 {
-	float fsample = FT8_SAMPLERATE;
 	bool is_ft4{mode == wsjtxMode::FT4};
 	std::vector<float> signal;
 	int nsym = (is_ft4) ? FT4_NN : FT8_NN;
@@ -29,6 +28,7 @@ std::vector<float> wsjtx_encode::encode_ft84(wsjtxMode mode, int frequency, std:
 	}
 	printf("\n");
 
+	float fsample = 48000.0;
 	int nsps = 4 * 1920;
 	float bt = 2.0;
 	int icmplx = 0;
@@ -48,5 +48,37 @@ std::vector<float> wsjtx_encode::encode_ft84(wsjtxMode mode, int frequency, std:
 	signal.resize(nwave);
 	printf("frequency %d number of tones %d, samplerate %d no samples %d\n", frequency, nsym, FT8_SAMPLERATE, nwave);
 	//save_wav(signal.data(), signal.size(), FT8_SAMPLERATE, "./wave.wav");
+	return signal;
+}
+
+//void genft4_(char *msg, int *ichk, char *msgsent, char ft4msgbits[], int itone[],
+//			 fortran_charlen_t, fortran_charlen_t);
+
+
+std::vector<float> wsjtx_encode::encode_ft4(wsjtxMode mode, int frequency, std::string message)
+{
+	int ichk = 0;
+	char ft4msgbits[77];
+	std::string msgsent;
+	std::vector<float> signal;
+	
+	message.resize(38);
+	msgsent.resize(38);
+	genft4_((char *)message.c_str(), &ichk, (char *)msgsent.c_str(), const_cast<char *>(ft4msgbits),
+			const_cast<int *>(itone), 37, 37);
+	int nsym = 103;
+	int nsps = 4 * 576;
+	float fsample = 48000.0;
+	float f0 = frequency; //ui->TxFreqSpinBox->value() - m_XIT;
+	int nwave = (nsym + 2) * nsps;
+	int icmplx = 0;
+	
+	float symbol_period = FT4_SYMBOL_PERIOD;
+	int num_samples = (int)(0.5f + nsym * symbol_period * fsample);
+	
+	signal.clear();
+	signal.resize(num_samples);
+	gen_ft4wave_(const_cast<int *>(itone), &nsym, &nsps, &fsample, &f0, signal.data(),
+				 foxcom_.wave, &icmplx, &nwave);
 	return signal;
 }

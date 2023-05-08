@@ -6,8 +6,24 @@ This library is an attempt to package wsjtx fortran code into a c++ callable lib
 It is intended for implementation in SDR tranceivers running in linux (raspberry pi)
 The library can be build by downloading and building the cmake file.
 
+to use the library dowload git repo 
+
+git clone https://github.com/paulh002/wsjtx_lib
+cd wsjtx_lib
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
+To use the library 
+#include <wsjtx_lib.h>
+create wsjtx_lib class and use the methods
+
 ToDo:
-- Expose JT4 ... protocols
+- Expose ... protocols
 
 Done:
-- FT8 support
+- FT8 decoder
+- FT4 decoder
+- FT8 Encoder
