@@ -1,3 +1,4 @@
+#include "wsjtx_lib.h"
 #include "wsjtx_decode.h"
 #include <cstring>
 #include <string>
@@ -31,7 +32,7 @@ void wstjx_decode::push_samples(SampleVector &audiosamples)
 	samplebuffer.push(move(audiosamples));
 }
 
-void wstjx_decode::decode_ft8(SampleVector &audiosamples, int freq)
+void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq)
 {
 	samplebuffer.push(move(audiosamples));
 
@@ -46,7 +47,7 @@ void wstjx_decode::decode_ft8(SampleVector &audiosamples, int freq)
 	params.nfb = 4000;
 	params.ntol = 20;
 	params.kin = 64800;
-	params.nzhsym = 50;
+	params.nzhsym = 79;
 	params.nsubmode = 0;
 	params.nagain = false;
 	params.ndepth = 1;
@@ -83,7 +84,7 @@ void wstjx_decode::decode_ft8(SampleVector &audiosamples, int freq)
 	multimode_decoder_(dec_data.ss, dec_data.d2 , &params, &nfsample);
 }
 
-void wstjx_decode::decode_ft8(IntSampleVector &audiosamples, int freq)
+void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq)
 {
 	std::memset(&params, 0, sizeof(params));
 	params.nmode = 8;
@@ -105,7 +106,38 @@ void wstjx_decode::decode_ft8(IntSampleVector &audiosamples, int freq)
 	params.ljt65apon = true;
 	params.napwid = 75;
 	params.ntxmode = 65;
-	params.nmode = 8;
+
+	switch (mode)
+	{
+	case FT8:
+		params.nmode = 8;
+		break;
+	case FT4:
+		params.nmode = 5;
+		break;
+	case JT4:
+		params.nmode = 8;
+		break;
+	case JT65:
+		params.nmode = 65;
+		break;
+	case JT9:
+		params.nmode = 9;
+		break;
+	case FST4:
+		params.nmode = 240;
+		break;
+	case FST4W:
+		params.nmode = 241;
+		break;
+	case Q65:
+		params.nmode = 66;
+		break;
+	case JT65JT9:
+		params.nmode = 65+9;
+		break;
+	}
+
 	params.minw = 0;
 	params.nclearave = false;
 	params.minSync = 0;
