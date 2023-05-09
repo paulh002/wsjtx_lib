@@ -2,6 +2,7 @@
 #include "wsjtx_decode.h"
 #include <cstring>
 #include <string>
+#include <fftw3.h>
 
 DataQueue<WsjtxMessage> WsjtxMessageQueue;
 
@@ -32,7 +33,7 @@ void wstjx_decode::push_samples(SampleVector &audiosamples)
 	samplebuffer.push(move(audiosamples));
 }
 
-void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq)
+void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq, int threads)
 {
 	samplebuffer.push(move(audiosamples));
 
@@ -81,10 +82,12 @@ void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq)
 	{
 		dec_data.d2[i] = (short int) (audiosamples[i] * 32768.0f);
 	}
+	
+	fftwf_plan_with_nthreads(threads);
 	multimode_decoder_(dec_data.ss, dec_data.d2 , &params, &nfsample);
 }
 
-void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq)
+void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq, int threads)
 {
 	std::memset(&params, 0, sizeof(params));
 	params.nmode = 8;
@@ -162,5 +165,7 @@ void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int fre
 	{
 		dec_data.d2[i] = (short int)audiosamples[i];
 	}
+
+	fftwf_plan_with_nthreads(threads);
 	multimode_decoder_(dec_data.ss, dec_data.d2, &params, &nfsample);
 }

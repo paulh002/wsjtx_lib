@@ -3,7 +3,7 @@
 #include "wsjtx_encode.h"
 #include "constants.h"
 #include <memory>
-
+#include <fftw3.h>
 /*
 	To test the library, include "wsjtx_lib.h" from an application project
 	and call wsjtx_libTest().
@@ -18,20 +18,25 @@ int wsjtx_libTest()
 	return ++s_Test;
 }
 
-void wsjtx_lib::decode(wsjtxMode mode, SampleVector &audiosamples, int freq)
+wsjtx_lib::wsjtx_lib()
 {
-	std::unique_ptr<wstjx_decode> ptr;
-
-	ptr = std::make_unique<wstjx_decode>();
-	ptr->decode(mode, audiosamples, freq);
+	fftwf_init_threads();
 }
 
-void wsjtx_lib::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq)
+void wsjtx_lib::decode(wsjtxMode mode, SampleVector &audiosamples, int freq, int thread)
 {
 	std::unique_ptr<wstjx_decode> ptr;
 
 	ptr = std::make_unique<wstjx_decode>();
-	ptr->decode(mode, audiosamples, freq);
+	ptr->decode(mode, audiosamples, freq, thread);
+}
+
+void wsjtx_lib::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq, int thread)
+{
+	std::unique_ptr<wstjx_decode> ptr;
+
+	ptr = std::make_unique<wstjx_decode>();
+	ptr->decode(mode, audiosamples, freq, thread);
 }
 
 std::vector<float> wsjtx_lib::encode(wsjtxMode mode,int frequency, std::string message)
@@ -40,13 +45,20 @@ std::vector<float> wsjtx_lib::encode(wsjtxMode mode,int frequency, std::string m
 	switch (mode)
 	{
 		case FT8:
+		{
+			std::unique_ptr<wsjtx_encode> ptr;
+
+			ptr = std::make_unique<wsjtx_encode>();
+			return ptr->encode_ft8(mode, frequency, message);
+		}
 		case FT4:
 		{
 			std::unique_ptr<wsjtx_encode> ptr;
 
 			ptr = std::make_unique<wsjtx_encode>();
-			return ptr->encode_ft84(mode, frequency, message);
+			return ptr->encode_ft4(mode, frequency, message);
 		}
 	}
+	// unsuported modes return empty vector
 	return ret;
 }

@@ -31,8 +31,8 @@ class wstjx_decode
 {
   public:
 	void push_samples(SampleVector &audiosamples);
-	void decode(wsjtxMode mode, SampleVector &audiosamples, int freq);
-	void decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq);
+	void decode(wsjtxMode mode, SampleVector &audiosamples, int freq, int threads = 1);
+	void decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq, int threads = 1);
   private:
 	params_t params;
 	DataBuffer<float> samplebuffer;
