@@ -23,11 +23,11 @@ void wsjtx_decoded_(int *nutc, int *snr, float *dt, int *freq, char *decoded, in
 			else
 				break;
 		}
-		//if (!strstr(message, "DecodeFinished"))
-		//{
+		if (!strstr(message, "DecodeFinished"))
+		{
 			printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
 			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 1000, *nutc % 100, *nutc, *snr, *dt, *freq, std::string(message)));
-		//}
+		}
 	}
 
 }
