@@ -2,6 +2,9 @@
 #include "wsjtx_decode.h"
 #include <cstring>
 #include <string>
+#include <fftw3.h>
+#include <ctime>
+#include <time.h>
 
 DataQueue<WsjtxMessage> WsjtxMessageQueue;
 
@@ -20,9 +23,11 @@ void wsjtx_decoded_(int *nutc, int *snr, float *dt, int *freq, char *decoded, in
 			else
 				break;
 		}
-
-		printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
-		WsjtxMessageQueue.push(WsjtxMessage(*nutc / 1000 ,*nutc % 100, *nutc, *snr, *dt ,*freq, std::string(message)));
+		//if (!strstr(message, "DecodeFinished"))
+		//{
+			printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
+			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 1000, *nutc % 100, *nutc, *snr, *dt, *freq, std::string(message)));
+		//}
 	}
 
 }
@@ -32,7 +37,7 @@ void wstjx_decode::push_samples(SampleVector &audiosamples)
 	samplebuffer.push(move(audiosamples));
 }
 
-void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq)
+void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq, int threads)
 {
 	samplebuffer.push(move(audiosamples));
 
@@ -81,10 +86,17 @@ void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq)
 	{
 		dec_data.d2[i] = (short int) (audiosamples[i] * 32768.0f);
 	}
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	time_t tt = std::chrono::system_clock::to_time_t(now);
+	tm local_tm = *localtime(&tt);
+	printf("start decode %02d:%02d:%02d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+	params.nutc = local_tm.tm_hour * 10000 + local_tm.tm_min * 100 + local_tm.tm_sec;
+	
+	fftwf_plan_with_nthreads(threads);
 	multimode_decoder_(dec_data.ss, dec_data.d2 , &params, &nfsample);
 }
 
-void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq)
+void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq, int threads)
 {
 	std::memset(&params, 0, sizeof(params));
 	params.nmode = 8;
@@ -162,5 +174,13 @@ void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int fre
 	{
 		dec_data.d2[i] = (short int)audiosamples[i];
 	}
+	
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	time_t tt = std::chrono::system_clock::to_time_t(now);
+	tm local_tm = *localtime(&tt);
+	printf("start decode %02d:%02d:%02d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
+	params.nutc = local_tm.tm_hour * 10000 + local_tm.tm_min * 100 + local_tm.tm_sec;
+
+	fftwf_plan_with_nthreads(threads);
 	multimode_decoder_(dec_data.ss, dec_data.d2, &params, &nfsample);
 }

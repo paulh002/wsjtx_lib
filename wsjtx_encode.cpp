@@ -5,7 +5,7 @@
 
 
 
-std::vector<float> wsjtx_encode::encode_ft84(wsjtxMode mode, int frequency, std::string message)
+std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::string message)
 {
 	bool is_ft4{mode == wsjtxMode::FT4};
 	std::vector<float> signal;
@@ -72,10 +72,16 @@ std::vector<float> wsjtx_encode::encode_ft4(wsjtxMode mode, int frequency, std::
 	float f0 = frequency; //ui->TxFreqSpinBox->value() - m_XIT;
 	int nwave = (nsym + 2) * nsps;
 	int icmplx = 0;
-	
 	float symbol_period = FT4_SYMBOL_PERIOD;
 	int num_samples = (int)(0.5f + nsym * symbol_period * fsample);
 	
+	printf("FSK tones: ");
+	for (int j = 0; j < nsym; ++j)
+	{
+		printf("%d", itone[j]);
+	}
+	printf("\n");
+
 	signal.clear();
 	signal.resize(num_samples);
 	gen_ft4wave_(const_cast<int *>(itone), &nsym, &nsps, &fsample, &f0, signal.data(),

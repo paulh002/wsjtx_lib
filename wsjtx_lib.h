@@ -21,7 +21,9 @@ enum wsjtxMode
 class wsjtx_lib
 {
   public:
-	void decode(wsjtxMode mode, SampleVector &audiosamples, int freq);
-	void decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq);
+	wsjtx_lib();
+
+	void decode(wsjtxMode mode, SampleVector &audiosamples, int freq, int thread = 1);
+	void decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq, int thread = 1);
 	std::vector<float> encode(wsjtxMode mode, int frequency, std::string message);
 };

@@ -9,7 +9,7 @@ set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -O3 ${General_F
 set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check ${General_FFLAGS}")
 set_source_files_properties (lib/decoder.f90 PROPERTIES COMPILE_FLAGS "-Wno-unused-dummy-argument")
 set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -g -fbacktrace -fbounds-check -fno-f2c -ffpe-summary=invalid,zero,overflow,underflow ${General_FFLAGS}")
-add_definitions (-DQT5 -DCMAKE_BUILD -DBIGSYM=1 -DBOOST_ALL_DYN_LINK)
+add_definitions (-DCMAKE_BUILD -DBIGSYM=1)
 set (wsjt_FSRCS
   # put module sources first in the hope that they get rebuilt before use
   lib/types.f90
@@ -277,7 +277,9 @@ set (wsjt_FSRCS
 
 
 
-add_library(wsjtx_lib wsjtx_lib.cpp wsjtx_lib.h "${wsjt_FSRCS}" wsjtx_decode.cpp wsjtx_decode.h commons.h DataBuffer.h lib/usleep.c lib/qra/q65/q65.c lib/qra/q65/fadengauss.c lib/qra/q65/fadenlorentz.c lib/qra/q65/normrnd.c lib/qra/q65/npfwht.c lib/qra/q65/pdmath.c lib/qra/q65/q65_subs.c lib/qra/q65/qra15_65_64_irr_e23.c lib/qra/q65/qracodes.c lib/crc10.cpp lib/crc13.cpp lib/crc14.cpp lib/igray.c lib/ftrsd/ftrsd2.c lib/ftrsd/ftrsdap.c lib/ftrsd/sfrsd.c lib/ftrsd/sfrsd3.c lib/char.h lib/decode_rs.c lib/encode_rs.c lib/init_rs.c lib/wrapkarn.c fortran_interface.h constants.h wsjtx_encode.h wsjtx_encode.cpp)
+add_library(wsjtx_lib wsjtx_lib.cpp wsjtx_lib.h "${wsjt_FSRCS}" wsjtx_decode.cpp wsjtx_decode.h commons.h DataBuffer.h lib/usleep.c lib/qra/q65/q65.c lib/qra/q65/fadengauss.c lib/qra/q65/fadenlorentz.c lib/qra/q65/normrnd.c lib/qra/q65/npfwht.c lib/qra/q65/pdmath.c lib/qra/q65/q65_subs.c lib/qra/q65/qra15_65_64_irr_e23.c lib/qra/q65/qracodes.c lib/crc10.cpp lib/crc13.cpp lib/crc14.cpp lib/igray.c lib/ftrsd/ftrsd2.c lib/ftrsd/ftrsdap.c lib/ftrsd/sfrsd3.c lib/char.h lib/decode_rs.c lib/encode_rs.c lib/init_rs.c lib/wrapkarn.c fortran_interface.h constants.h wsjtx_encode.h wsjtx_encode.cpp)
 target_link_libraries(wsjtx_lib "${LIBRARIES_FROM_REFERENCES}")
+set_property(TARGET wsjtx_lib PROPERTY CXX_STANDARD 17)
+target_compile_options(wsjtx_lib PRIVATE -DFFTW_ENABLE_FLOAT)
 install(TARGETS wsjtx_lib DESTINATION lib)
 install(FILES wsjtx_lib.h DESTINATION include)
