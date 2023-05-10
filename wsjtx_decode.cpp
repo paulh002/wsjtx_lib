@@ -25,19 +25,14 @@ void wsjtx_decoded_(int *nutc, int *snr, float *dt, int *freq, char *decoded, in
 		}
 		if (!strstr(message, "DecodeFinished"))
 		{
-			printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
-			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 1000, *nutc % 100, *nutc, *snr, *dt, *freq, std::string(message)));
+			//printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
+			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 10000, *nutc % 100, *nutc % 100, *snr, *dt, *freq, std::string(message)));
 		}
 	}
 
 }
 
-void wstjx_decode::push_samples(SampleVector &audiosamples)
-{
-	samplebuffer.push(move(audiosamples));
-}
-
-void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq, int threads)
+void wstjx_decode::decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, int threads)
 {
 	samplebuffer.push(move(audiosamples));
 
@@ -96,7 +91,7 @@ void wstjx_decode::decode(wsjtxMode mode, SampleVector &audiosamples, int freq, 
 	multimode_decoder_(dec_data.ss, dec_data.d2 , &params, &nfsample);
 }
 
-void wstjx_decode::decode(wsjtxMode mode, IntSampleVector &audiosamples, int freq, int threads)
+void wstjx_decode::decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq, int threads)
 {
 	std::memset(&params, 0, sizeof(params));
 	params.nmode = 8;

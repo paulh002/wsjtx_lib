@@ -9,7 +9,7 @@ std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::
 {
 	bool is_ft4{mode == wsjtxMode::FT4};
 	std::vector<float> signal;
-	int nsym = (is_ft4) ? FT4_NN : FT8_NN;
+	int nsym = FT8_NN;
 
 	int i3 = 0;
 	int n3 = 0;
@@ -35,9 +35,9 @@ std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::
 	int nwave = nsym * nsps;
 	float f0 = frequency;
 
-	float symbol_period = (is_ft4) ? FT4_SYMBOL_PERIOD : FT8_SYMBOL_PERIOD;
-	float symbol_bt = (is_ft4) ? FT4_SYMBOL_BT : FT8_SYMBOL_BT;
-	float slot_time = (is_ft4) ? FT4_SLOT_TIME : FT8_SLOT_TIME;
+	float symbol_period = FT8_SYMBOL_PERIOD;
+	float symbol_bt = FT8_SYMBOL_BT;
+	float slot_time = FT8_SLOT_TIME;
 	int num_samples = (int)(0.5f + nsym * symbol_period * fsample);
 
 	signal.clear();
