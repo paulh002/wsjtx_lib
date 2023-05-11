@@ -21,7 +21,7 @@ make
 sudo make install
 
 To use the library 
-#include <wsjtx_lib.h>
+include wsjtx_lib.h
 create wsjtx_lib class and use the methods
 
 ToDo:
