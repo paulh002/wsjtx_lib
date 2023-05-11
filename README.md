@@ -7,12 +7,17 @@ This library is an attempt to package wsjtx fortran code into a c++ callable lib
 It is intended for implementation in SDR tranceivers running in linux (raspberry pi)
 The library can be build, on linux, by downloading and building the cmake file.
 
-to use the library dowload git repo, there is an dependency to cmake, gfortran, and fftw3
+## Install and compile with cmake
+To use the library dowload git repo, there is an dependency to cmake, gfortran, and fftw3
+```
 sudo apt install cmake g++
 sudo apt install gfortran
 sudo apt install libfftw3-3
 sudo apt install libfftw3-dev
+```
 
+## Compile with cmake (assuming all libraries are available)
+```
 git clone the repo
 cd wsjtx_lib
 mkdir build
@@ -20,9 +25,11 @@ cd build
 cmake ..
 make
 sudo make install
-
+```
 To use the library 
-include wsjtx_lib.h
+```
+#include <wsjtx_lib.h>
+```
 create wsjtx_lib class and use the methods
 
 ToDo:
