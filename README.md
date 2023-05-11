@@ -14,6 +14,7 @@ sudo apt install cmake g++
 sudo apt install gfortran
 sudo apt install libfftw3-3
 sudo apt install libfftw3-dev
+sudo apt install libboost-all-dev
 ```
 
 ## Compile with cmake (assuming all libraries are available)
