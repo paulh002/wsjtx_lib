@@ -29,6 +29,8 @@ sudo make install
 To use the library 
 ```
 #include <wsjtx_lib.h>
+
+add to the linker -l"wsjtx_lib" -l"pthread" -l"fftw3f" -l"fftw3f_threads" -l"gfortran"
 ```
 create wsjtx_lib class and use the methods
 
