@@ -43,7 +43,7 @@ class wsjtx_lib
 
 	void decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, int thread = 1);
 	void decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq, int thread = 1);
-	std::vector<float> encode(wsjtxMode mode, int frequency, std::string message);
+	std::vector<float> encode(wsjtxMode mode, int frequency, std::string message, std::string &messagesend);
 	bool pullMessage(WsjtxMessage &msg);
 };
 

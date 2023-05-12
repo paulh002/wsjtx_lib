@@ -2,32 +2,31 @@
 #include "DataBuffer.h"
 #include "commons.h"
 #include "fortran_interface.h"
+#include <cstring>
 
-
-
-std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::string message)
+std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::string message, std::string &msgsent)
 {
-	bool is_ft4{mode == wsjtxMode::FT4};
 	std::vector<float> signal;
-	int nsym = FT8_NN;
-
+	
 	int i3 = 0;
 	int n3 = 0;
 	char ft8msgbits[77];
-	std::string msgsent;
 
-	message.resize(38);
-	msgsent.resize(38);
-	genft8_((char *)message.c_str(), &i3, &n3, (char *)msgsent.c_str(), const_cast<char *>(ft8msgbits),
+	std::memset(msg, 0, 38);
+	std::memset(sendmsg, 0, 38);
+	strcpy(msg, message.c_str());
+	genft8_(msg, &i3, &n3, sendmsg, const_cast<char *>(ft8msgbits),
 			const_cast<int *>(itone), 37, 37);
+	sendmsg[37] = '\0';
+	msgsent = std::string(sendmsg);
 
+	int nsym = FT8_NN;
 	printf("FSK tones: ");
 	for (int j = 0; j < nsym; ++j)
 	{
 		printf("%d", itone[j]);
 	}
 	printf("\n");
-
 	float fsample = 48000.0;
 	int nsps = 4 * 1920;
 	float bt = 2.0;
@@ -42,11 +41,10 @@ std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::
 
 	signal.clear();
 	signal.resize(num_samples);
-
 	gen_ft8wave_(const_cast<int *>(itone), &nsym, &nsps, &bt, &fsample, &f0, signal.data(),
 				 signal.data(), &icmplx, &nwave);
 	signal.resize(nwave);
-	printf("frequency %d number of tones %d, samplerate %d no samples %d\n", frequency, nsym, FT8_SAMPLERATE, nwave);
+	printf("frequency %d number of tones %d, samplerate %6.0f no samples %d\n", frequency, nsym, fsample, nwave);
 	//save_wav(signal.data(), signal.size(), FT8_SAMPLERATE, "./wave.wav");
 	return signal;
 }
@@ -54,18 +52,19 @@ std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::
 //void genft4_(char *msg, int *ichk, char *msgsent, char ft4msgbits[], int itone[],
 //			 fortran_charlen_t, fortran_charlen_t);
 
-
-std::vector<float> wsjtx_encode::encode_ft4(wsjtxMode mode, int frequency, std::string message)
+std::vector<float> wsjtx_encode::encode_ft4(wsjtxMode mode, int frequency, std::string message, std::string &msgsent)
 {
 	int ichk = 0;
-	char ft4msgbits[77];
-	std::string msgsent;
+	char ft4msgbits[101];
 	std::vector<float> signal;
+
+	std::memset(msg, 0, 38);
+	std::memset(sendmsg, 0, 38);
+	strcpy(msg, message.c_str());
+	genft4_(msg, &ichk, sendmsg, const_cast<char *>(ft4msgbits), const_cast<int *>(itone), 37, 37);
+	sendmsg[37] = '\0';
+	msgsent = std::string(sendmsg);
 	
-	message.resize(38);
-	msgsent.resize(38);
-	genft4_((char *)message.c_str(), &ichk, (char *)msgsent.c_str(), const_cast<char *>(ft4msgbits),
-			const_cast<int *>(itone), 37, 37);
 	int nsym = 103;
 	int nsps = 4 * 576;
 	float fsample = 48000.0;

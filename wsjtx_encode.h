@@ -12,9 +12,10 @@
 class wsjtx_encode
 {
 	public:
-	std::vector<float> encode_ft8(wsjtxMode mode, int frequency, std::string message);
-	std::vector<float> encode_ft4(wsjtxMode mode, int frequency, std::string message);
+	  std::vector<float> encode_ft8(wsjtxMode mode, int frequency, std::string message, std::string &msgsent);
+	  std::vector<float> encode_ft4(wsjtxMode mode, int frequency, std::string message, std::string &msgsent);
 
   private:
 	int itone[MAX_NUM_SYMBOLS] = {0};
+	char msg[38], sendmsg[38];
 };

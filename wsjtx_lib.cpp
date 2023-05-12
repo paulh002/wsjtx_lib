@@ -47,7 +47,7 @@ void wsjtx_lib::decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq, i
 	ptr->decode(mode, audiosamples, freq, thread);
 }
 
-std::vector<float> wsjtx_lib::encode(wsjtxMode mode,int frequency, std::string message)
+std::vector<float> wsjtx_lib::encode(wsjtxMode mode, int frequency, std::string message, std::string &messagesend)
 {
 	std::vector<float> ret;
 	switch (mode)
@@ -57,14 +57,14 @@ std::vector<float> wsjtx_lib::encode(wsjtxMode mode,int frequency, std::string m
 			std::unique_ptr<wsjtx_encode> ptr;
 
 			ptr = std::make_unique<wsjtx_encode>();
-			return ptr->encode_ft8(mode, frequency, message);
+			return ptr->encode_ft8(mode, frequency, message, messagesend);
 		}
 		case FT4:
 		{
 			std::unique_ptr<wsjtx_encode> ptr;
 
 			ptr = std::make_unique<wsjtx_encode>();
-			return ptr->encode_ft4(mode, frequency, message);
+			return ptr->encode_ft4(mode, frequency, message, messagesend);
 		}
 	}
 	// unsuported modes return empty vector
