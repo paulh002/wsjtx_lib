@@ -15,7 +15,8 @@ enum wsjtxMode
 	FST4,
 	Q65,
 	FST4W,
-	JT65JT9 // Dual
+	JT65JT9, // Dual
+	WSPR
 };
 
 class WsjtxMessage

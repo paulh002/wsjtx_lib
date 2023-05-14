@@ -34,17 +34,11 @@ std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::
 	int nwave = nsym * nsps;
 	float f0 = frequency;
 
-	float symbol_period = FT8_SYMBOL_PERIOD;
-	float symbol_bt = FT8_SYMBOL_BT;
-	float slot_time = FT8_SLOT_TIME;
-	int num_samples = (int)(0.5f + nsym * symbol_period * fsample);
-
 	signal.clear();
-	signal.resize(num_samples);
+	signal.resize(nwave);
 	gen_ft8wave_(const_cast<int *>(itone), &nsym, &nsps, &bt, &fsample, &f0, signal.data(),
 				 signal.data(), &icmplx, &nwave);
-	signal.resize(nwave);
-	printf("frequency %d number of tones %d, samplerate %6.0f no samples %d\n", frequency, nsym, fsample, nwave);
+	printf("ft8 frequency %d number of tones %d, samplerate %6.0f no samples %d\n", frequency, nsym, fsample, nwave);
 	//save_wav(signal.data(), signal.size(), FT8_SAMPLERATE, "./wave.wav");
 	return signal;
 }
@@ -71,8 +65,6 @@ std::vector<float> wsjtx_encode::encode_ft4(wsjtxMode mode, int frequency, std::
 	float f0 = frequency; //ui->TxFreqSpinBox->value() - m_XIT;
 	int nwave = (nsym + 2) * nsps;
 	int icmplx = 0;
-	float symbol_period = FT4_SYMBOL_PERIOD;
-	int num_samples = (int)(0.5f + nsym * symbol_period * fsample);
 	
 	printf("FSK tones: ");
 	for (int j = 0; j < nsym; ++j)
@@ -82,8 +74,9 @@ std::vector<float> wsjtx_encode::encode_ft4(wsjtxMode mode, int frequency, std::
 	printf("\n");
 
 	signal.clear();
-	signal.resize(num_samples);
+	signal.resize(nwave);
 	gen_ft4wave_(const_cast<int *>(itone), &nsym, &nsps, &fsample, &f0, signal.data(),
-				 foxcom_.wave, &icmplx, &nwave);
+				 signal.data(), &icmplx, &nwave);
+	printf("ft4 frequency %d number of tones %d, samplerate %6.0f no samples %d\n", frequency, nsym, fsample, nwave);
 	return signal;
 }

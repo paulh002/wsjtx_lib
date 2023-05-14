@@ -75,6 +75,39 @@ void wstjx_decode::decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, i
 	//params.mygrid;
 	//params.hiscall;
 	//params.hisgrid;
+	switch (mode)
+	{
+	case FT8:
+		params.nmode = 8;
+		break;
+	case FT4:
+		params.nmode = 5;
+		break;
+	case JT4:
+		params.nmode = 8;
+		break;
+	case JT65:
+		params.nmode = 65;
+		break;
+	case JT9:
+		params.nmode = 9;
+		break;
+	case FST4:
+		params.nmode = 240;
+		break;
+	case FST4W:
+		params.nmode = 241;
+		break;
+	case Q65:
+		params.nmode = 66;
+		break;
+	case JT65JT9:
+		params.nmode = 65 + 9;
+		break;
+	case WSPR:
+		params.nmode = 8; //tbd
+		break;
+	}
 
 	int nfsample = 12000;
 	for (int i = 0; i < audiosamples.size(); i++)
@@ -142,6 +175,9 @@ void wstjx_decode::decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq
 		break;
 	case JT65JT9:
 		params.nmode = 65+9;
+		break;
+	case WSPR:
+		params.nmode = 8;  //tbd
 		break;
 	}
 
