@@ -4,7 +4,6 @@
 #include <fftw3.h>
 #include <memory.h>
 #include <chrono>
-//#include "wsprd/wsprd.h"
 #include "date.h"
 
 using namespace std;
@@ -13,21 +12,6 @@ IntWsjTxVector audioSignal;
 WsjtxIQSampleVector iqdat;
 
 wsjtx_lib decoder;
-/*
-decoder_options::decoder_options()
-{
-	usehashtable = 0;
-	npasses = 2;
-	subtraction = 1;
-	quickmode = 0;
-}
-
-int wspr_decode(std::vector<std::complex<float>> &iqdat,
-				int samples,
-				decoder_options options,
-				std::vector<struct decoder_results> &decodes,
-				int threads);
-*/
 
 //***************************************************************************
 unsigned long readc2file(char *ptr_to_infile, WsjtxIQSampleVector &iqdat,
