@@ -1,7 +1,11 @@
 # WSJTX JT4, jt65, jt9, FT4, FT8, C++ library
-The fortran code is owned by Joe Taylor, K1JT.
-Copyright (C) 2001 - 2021 by Joe Taylor, K1JT.
-Copyright (C) 2023 PA0PHH c++ part
+The fortran code is owned by Joe Taylor, K1JT. <br />
+Copyright (C) 2001 - 2021 by Joe Taylor, K1JT. <br />
+Copyright (C) 2023 PA0PHH c++ part <br />
+
+The wspr part is taken from rtlsdr-wsprd under GNU Licence <br />
+https://github.com/Guenael/rtlsdr-wsprd <br />
+
 
 This library is an attempt to package wsjtx fortran code into a c++ callable library
 It is intended for implementation in SDR tranceivers running in linux (raspberry pi)
