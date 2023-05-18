@@ -40,10 +40,11 @@ add to the linker -l"wsjtx_lib" -l"pthread" -l"fftw3f" -l"fftw3f_threads" -l"gfo
 create wsjtx_lib class and use the methods
 
 ToDo:
-- Expose ... FST4, WSPR and other protocols
+- Expose ... FST4 and other protocols
 
 Done:
 - FT8 decoder
 - FT4 decoder
 - FT8 Encoder
-- FT8 Encoder
+- FT4 Encoder
+- WSPR decoder
