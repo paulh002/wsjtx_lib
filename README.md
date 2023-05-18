@@ -38,6 +38,7 @@ To use the library
 add to the linker -l"wsjtx_lib" -l"pthread" -l"fftw3f" -l"fftw3f_threads" -l"gfortran"
 ```
 create wsjtx_lib class and use the methods
+sample wav files are part of the original wsjtx download
 
 ToDo:
 - Expose ... FST4 and other protocols
