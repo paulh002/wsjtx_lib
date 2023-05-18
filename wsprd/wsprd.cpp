@@ -437,7 +437,7 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
     int   uniques = 0;
 
 	decodes.clear();
-	//fftwf_plan_with_nthreads(threads);
+	fftwf_plan_with_nthreads(threads);
     /* CPU usage stats */
     uint32_t metric, cycles, maxnp;
 
