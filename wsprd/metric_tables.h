@@ -1,8 +1,9 @@
 /*******************************************************************************
-* 4 metric tables calculated via simulation for 2-FSK with Es/No=0,3,6,9 dB
-* tables were calculated for constant rms noise level of 50. The symbol vector
-* should be normalized to have rms amplitude equal to "symbol_scale".
-********************************************************************************/
+ * 4 metric tables calculated via simulation for 2-FSK with Es/No=0,3,6,9 dB
+ * tables were calculated for constant rms noise level of 50. The symbol vector
+ * should be normalized to have rms amplitude equal to "symbol_scale".
+ ********************************************************************************/
+
 //float symbol_scale[5]={42.6, 53.3, 72.7, 100.2, 125.4};
 float metric_tables[5][256]={
     {0.9782,      0.9695,      0.9689,      0.9669,      0.9666,      0.9653,      0.9638,      0.9618,      0.9599,      0.9601, 

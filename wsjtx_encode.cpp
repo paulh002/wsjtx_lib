@@ -80,3 +80,10 @@ std::vector<float> wsjtx_encode::encode_ft4(wsjtxMode mode, int frequency, std::
 	printf("ft4 frequency %d number of tones %d, samplerate %6.0f no samples %d\n", frequency, nsym, fsample, nwave);
 	return signal;
 }
+
+std::vector<float> wsjtx_encode::encode_wspr(wsjtxMode mode, int frequency, std::string message, std::string &msgsent)
+{
+	std::vector<float> signal;
+
+	return signal;
+}

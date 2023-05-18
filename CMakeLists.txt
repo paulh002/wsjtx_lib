@@ -4,7 +4,6 @@
 cmake_minimum_required(VERSION 2.7)
 project(wsjtx_lib)
 enable_language(Fortran)
-set(LIBRARIES_FROM_REFERENCES "fftw3f;fftw3f_threads")
 set (CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -O3 ${General_FFLAGS}")
 set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -fbounds-check ${General_FFLAGS}")
 set_source_files_properties (lib/decoder.f90 PROPERTIES COMPILE_FLAGS "-Wno-unused-dummy-argument")
@@ -276,8 +275,8 @@ set (wsjt_FSRCS
   )
 
 
-
-add_library(wsjtx_lib wsjtx_lib.cpp wsjtx_lib.h "${wsjt_FSRCS}" wsjtx_decode.cpp wsjtx_decode.h commons.h DataBuffer.h lib/usleep.c lib/qra/q65/q65.c lib/qra/q65/fadengauss.c lib/qra/q65/fadenlorentz.c lib/qra/q65/normrnd.c lib/qra/q65/npfwht.c lib/qra/q65/pdmath.c lib/qra/q65/q65_subs.c lib/qra/q65/qra15_65_64_irr_e23.c lib/qra/q65/qracodes.c lib/crc10.cpp lib/crc13.cpp lib/crc14.cpp lib/igray.c lib/ftrsd/ftrsd2.c lib/ftrsd/ftrsdap.c lib/ftrsd/sfrsd3.c lib/char.h lib/decode_rs.c lib/encode_rs.c lib/init_rs.c lib/wrapkarn.c fortran_interface.h constants.h wsjtx_encode.h wsjtx_encode.cpp)
+include_directories(wsprd)
+add_library(wsjtx_lib wsjtx_lib.cpp wsjtx_lib.h "${wsjt_FSRCS}" wsjtx_decode.cpp wsjtx_decode.h commons.h DataBuffer.h lib/usleep.c lib/qra/q65/q65.c lib/qra/q65/fadengauss.c lib/qra/q65/fadenlorentz.c lib/qra/q65/normrnd.c lib/qra/q65/npfwht.c lib/qra/q65/pdmath.c lib/qra/q65/q65_subs.c lib/qra/q65/qra15_65_64_irr_e23.c lib/qra/q65/qracodes.c lib/crc10.cpp lib/crc13.cpp lib/crc14.cpp lib/igray.c lib/ftrsd/ftrsd2.c lib/ftrsd/ftrsdap.c lib/ftrsd/sfrsd3.c lib/char.h lib/decode_rs.c lib/encode_rs.c lib/init_rs.c lib/wrapkarn.c fortran_interface.h constants.h wsjtx_encode.h wsjtx_encode.cpp wsprd/fano.cpp wsprd/nhash.cpp wsprd/tab.cpp wsprd/wsprd.cpp wsprd/wsprd_utils.cpp wsprd/wsprsim_utils.cpp wsprd/fano.h wsprd/metric_tables.h wsprd/nhash.h wsprd/wsprd.h wsprd/wsprd_utils.h wsprd/wsprsim_utils.h)
 target_link_libraries(wsjtx_lib "${LIBRARIES_FROM_REFERENCES}")
 set_property(TARGET wsjtx_lib PROPERTY CXX_STANDARD 17)
 target_compile_options(wsjtx_lib PRIVATE -DFFTW_ENABLE_FLOAT)

@@ -30,6 +30,25 @@ void wsjtx_decoded_(int *nutc, int *snr, float *dt, int *freq, char *decoded, in
 		}
 	}
 
+	void wsjtx_decoded_fst4_(int *nutc, float *sync, int *snr, float *dt, float *freq, char *decoded, int len)
+	{
+		char message[38];
+
+		std::strncpy(message, decoded, 37);
+		message[37] = '\0';
+		for (int i = 37; i != 0; i--)
+		{
+			if (message[i] == ' ' || message[i] == '\0')
+				message[i] = '\0';
+			else
+				break;
+		}
+		if (!strstr(message, "DecodeFinished"))
+		{
+			//printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
+			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 10000, *nutc % 100, *nutc % 100, *snr, *sync, *dt, *freq, std::string(message)));
+		}
+	}
 }
 
 void wstjx_decode::decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, int threads)
@@ -85,28 +104,27 @@ void wstjx_decode::decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, i
 		break;
 	case JT4:
 		params.nmode = 8;
-		break;
+		return; // not yet implememted
 	case JT65:
 		params.nmode = 65;
-		break;
+		return; // not yet implememted
 	case JT9:
 		params.nmode = 9;
-		break;
+		return; // not yet implememted
 	case FST4:
 		params.nmode = 240;
-		break;
+		return; // not yet implememted
 	case FST4W:
 		params.nmode = 241;
-		break;
+		return; // not yet implememted
 	case Q65:
 		params.nmode = 66;
-		break;
+		return; // not yet implememted
 	case JT65JT9:
 		params.nmode = 65 + 9;
-		break;
+		return; // not yet implememted
 	case WSPR:
-		params.nmode = 8; //tbd
-		break;
+		return; // in this class
 	}
 
 	int nfsample = 12000;
@@ -157,28 +175,27 @@ void wstjx_decode::decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq
 		break;
 	case JT4:
 		params.nmode = 8;
-		break;
+		return; // not yet implememted
 	case JT65:
 		params.nmode = 65;
-		break;
+		return; // not yet implememted
 	case JT9:
 		params.nmode = 9;
-		break;
+		return; // not yet implememted
 	case FST4:
 		params.nmode = 240;
-		break;
+		return; // not yet implememted
 	case FST4W:
 		params.nmode = 241;
-		break;
+		return; // not yet implememted
 	case Q65:
 		params.nmode = 66;
-		break;
+		return; // not yet implememted
 	case JT65JT9:
 		params.nmode = 65+9;
-		break;
+		return; // not yet implememted
 	case WSPR:
-		params.nmode = 8;  //tbd
-		break;
+		return; // not in this class
 	}
 
 	params.minw = 0;

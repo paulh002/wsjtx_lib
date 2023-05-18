@@ -47,6 +47,20 @@ void wsjtx_lib::decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq, i
 	ptr->decode(mode, audiosamples, freq, thread);
 }
 
+int wspr_decode(std::vector<std::complex<float>> &iqdat,
+				int samples,
+				decoder_options options,
+				std::vector<struct decoder_results> &decodes,
+				int threads);
+
+std::vector<struct decoder_results> wsjtx_lib::wspr_decode(WsjtxIQSampleVector &iqsignal, decoder_options options)
+{
+	std::vector<decoder_results> results;
+
+	::wspr_decode(iqsignal, iqsignal.size(), options, results, 4);
+	return results;
+}
+
 std::vector<float> wsjtx_lib::encode(wsjtxMode mode, int frequency, std::string message, std::string &messagesend)
 {
 	std::vector<float> ret;
