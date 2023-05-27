@@ -26,7 +26,7 @@ void wsjtx_decoded_(int *nutc, int *snr, float *dt, int *freq, char *decoded, in
 		if (!strstr(message, "DecodeFinished"))
 		{
 			//printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
-			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 10000, *nutc % 100, *nutc % 100, *snr, *dt, *freq, std::string(message)));
+			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 10000, (*nutc / 100) % 100, *nutc % 100, *snr, *dt, *freq, std::string(message)));
 		}
 	}
 
@@ -46,7 +46,7 @@ void wsjtx_decoded_(int *nutc, int *snr, float *dt, int *freq, char *decoded, in
 		if (!strstr(message, "DecodeFinished"))
 		{
 			//printf("nutc %d, snr %d, dt %f, freq %d message %s \n", *nutc, *snr, *dt, *freq, message);
-			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 10000, *nutc % 100, *nutc % 100, *snr, *sync, *dt, *freq, std::string(message)));
+			WsjtxMessageQueue.push(WsjtxMessage(*nutc / 10000, (*nutc / 100) % 100, *nutc % 100, *snr, *sync, *dt, *freq, std::string(message)));
 		}
 	}
 }
