@@ -27,18 +27,19 @@ std::vector<float> wsjtx_encode::encode_ft8(wsjtxMode mode, int frequency, std::
 		printf("%d", itone[j]);
 	}
 	printf("\n");
-	float fsample = 48000.0;
-	int nsps = 4 * 1920;
-	float bt = 2.0;
-	int icmplx = 0;
-	int nwave = nsym * nsps;
-	float f0 = frequency;
+
+	nsps = 4 * 1920;
+	fsample = 48000.0;
+	bt = 2.0;
+	icmplx = 0;
+	nwave = nsym * nsps;
+	f0 = frequency;
 
 	signal.clear();
 	signal.resize(nwave);
 	gen_ft8wave_(const_cast<int *>(itone), &nsym, &nsps, &bt, &fsample, &f0, signal.data(),
 				 signal.data(), &icmplx, &nwave);
-	printf("ft8 frequency %d number of tones %d, samplerate %6.0f no samples %d\n", frequency, nsym, fsample, nwave);
+	printf("ft8 frequency %4.0f number of tones %d, samplerate %6.0f no samples %d\n", f0, nsym, fsample, nwave);
 	//save_wav(signal.data(), signal.size(), FT8_SAMPLERATE, "./wave.wav");
 	return signal;
 }

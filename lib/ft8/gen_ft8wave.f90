@@ -4,16 +4,19 @@ subroutine gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
 !
   use timer_module, only: timer
   parameter(MAX_SECONDS=20,NTAB=65536)
+  real bt
+  real f0
+  real f1
   real wave(nwave)
   complex cwave(nwave),ctab(0:NTAB-1)
   real pulse(23040)
   real dphi(0:(nsym+2)*nsps-1)
   integer itone(nsym)
   data ibt0/0/
-  save pulse,twopi,dt,hmod,ibt0,ctab
+  save pulse,twopi,dt,hmod,ibt0,ctab, f1
 
   ibt=nint(10*bt)
-  if(ibt0.ne.ibt) then
+  if(ibt0.ne.ibt .or. f1.ne.fsample) then
      twopi=8.0*atan(1.0)
      dt=1.0/fsample
      hmod=1.0
@@ -28,6 +31,7 @@ subroutine gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
         ctab(i)=cmplx(cos(phi),sin(phi))
      enddo
   endif
+  f1 = fsample
 
 ! Compute the smoothed frequency waveform.
 ! Length = (nsym+2)*nsps samples, first and last symbols extended 
@@ -45,6 +49,9 @@ subroutine gen_ft8wave(itone,nsym,nsps,bt,fsample,f0,cwave,wave,icmplx,nwave)
 ! Calculate and insert the audio waveform
   phi=0.0
   dphi = dphi + twopi*f0*dt                      !Shift frequency up by f0
+  
+  !print*, 'parameters ', f0, twopi, (nsym+2)*nsps-1, dt, dhpi
+  
   if(icmplx .eq. 0) wave=0.
   if(icmplx .ne. 0) cwave=0. !Avoid writing to memory we may not have access to
 

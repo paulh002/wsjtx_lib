@@ -19,4 +19,10 @@ class wsjtx_encode
 	private:
 	  int itone[MAX_NUM_SYMBOLS] = {0};
 	  char msg[38], sendmsg[38];
+	  int nsps ;
+	  float fsample ;
+	  float bt;
+	  int icmplx{0};
+	  int nwave;
+	  float f0;
 };
