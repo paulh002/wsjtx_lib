@@ -52,6 +52,8 @@ set (wsjt_FSRCS
   lib/averms.f90
   lib/azdist.f90
   lib/ft8/baseline.f90
+  lib/ft8/ft8_a7.f90
+  lib/qra/q65/q65_set_list2.f90
   lib/ft4/ft4_baseline.f90
   lib/blanker.f90
   lib/bpdecode40.f90

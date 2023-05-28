@@ -8,6 +8,7 @@ module packjt77
   character (len=13), dimension(1:MAXRECENT) :: recent_calls=''
   character (len=13) :: mycall13=''
   character (len=13) :: dxcall13=''
+  character (len=6)  :: dxbase=''
   integer, dimension(1:MAXHASH) :: ihash22=-1
   integer :: nzhash=0
   integer n28a,n28b
@@ -124,6 +125,11 @@ subroutine pack77(msg0,i3,n3,c77)
   integer ntel(3)
 
   msg=msg0
+  if(msg(1:3).eq.'$DX') then
+     i1=index(msg,' ')
+     msg=trim(dxbase)//' '//msg(i1+1:)
+  endif
+
   i3_hint=i3
   n3_hint=n3
   i3=-1
@@ -198,8 +204,8 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
 ! the value of nrx is used to decide when mycall13 or dxcall13 should
 ! be used in place of a callsign from the hashtable
 !
-  parameter (NSEC=85)      !Number of ARRL Sections
-  parameter (NUSCAN=65)    !Number of US states and Canadian provinces
+  parameter (NSEC=86)      !Number of ARRL Sections
+  parameter (NUSCAN=171)   !Number of States and Provinces
   parameter (MAXGRID4=32400)
   integer*8 n58
   integer ntel(3)
@@ -223,14 +229,14 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
   data c/' 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ/'/
   data csec/                                                         &
        "AB ","AK ","AL ","AR ","AZ ","BC ","CO ","CT ","DE ","EB ",  &       
-       "EMA","ENY","EPA","EWA","GA ","GTA","IA ","ID ","IL ","IN ",  &       
-       "KS ","KY ","LA ","LAX","MAR","MB ","MDC","ME ","MI ","MN ",  &       
+       "EMA","ENY","EPA","EWA","GA ","GH ","IA ","ID ","IL ","IN ",  &
+       "KS ","KY ","LA ","LAX","NS ","MB ","MDC","ME ","MI ","MN ",  &
        "MO ","MS ","MT ","NC ","ND ","NE ","NFL","NH ","NL ","NLI",  &       
-       "NM ","NNJ","NNY","NT ","NTX","NV ","OH ","OK ","ONE","ONN",  &       
+       "NM ","NNJ","NNY","TER","NTX","NV ","OH ","OK ","ONE","ONN",  &
        "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
        "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
        "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX ","PE "/
+       "WV ","WWA","WY ","DX ","PE ","NB "/
   data cmult/                                                        &
        "AL ","AK ","AZ ","AR ","CA ","CO ","CT ","DE ","FL ","GA ",  &
        "HI ","ID ","IL ","IN ","IA ","KS ","KY ","LA ","ME ","MD ",  &
@@ -238,7 +244,18 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
        "NM ","NY ","NC ","ND ","OH ","OK ","OR ","PA ","RI ","SC ",  &
        "SD ","TN ","TX ","UT ","VT ","VA ","WA ","WV ","WI ","WY ",  &
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
-       "LB ","NU ","YT ","PEI","DC "/
+       "LB ","NU ","YT ","PEI","DC ","DR ","FR ","GD ","GR ","OV ",  &
+       "ZH ","ZL ","X01","X02","X03","X04","X05","X06","X07","X08",  &
+       "X09","X10","X11","X12","X13","X14","X15","X16","X17","X18",  &
+       "X19","X20","X21","X22","X23","X24","X25","X26","X27","X28",  &
+       "X29","X30","X31","X32","X33","X34","X35","X36","X37","X38",  &
+       "X39","X40","X41","X42","X43","X44","X45","X46","X47","X48",  &
+       "X49","X50","X51","X52","X53","X54","X55","X56","X57","X58",  &
+       "X59","X60","X61","X62","X63","X64","X65","X66","X67","X68",  &
+       "X69","X70","X71","X72","X73","X74","X75","X76","X77","X78",  &
+       "X79","X80","X81","X82","X83","X84","X85","X86","X87","X88",  &
+       "X89","X90","X91","X92","X93","X94","X95","X96","X97","X98",  &
+       "X99"/
   data dxcall13_set/.false./
   data mycall13_set/.false./
   data mycall13_0/''/
@@ -353,15 +370,28 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
      msg=adjustl(msg)
 
   else if(i3.eq.0 .and. n3.eq.6) then
-     read(c77(49:50),'(2b1)') j2a,j2b
-     itype=2
-     if(j2b.eq.0 .and. j2a.eq.0) itype=1
-     if(j2b.eq.0 .and. j2a.eq.1) itype=3
+     read(c77(48:50),'(3b1)') j48,j49,j50
+! bits 48:50
+! itype=1: x00
+! itype=2: xx1
+! itype=3: 010
+     if(j50.eq.1) then
+        itype=2
+     else if(j49.eq.0) then
+        itype=1
+     else if(j48.eq.0) then
+        itype=3
+     else
+        itype=-1
+        unpk77_success=.false.
+     endif
+
      if(itype.eq.1) then
 ! WSPR Type 1
         read(c77,2010) n28,igrid4,idbm
 2010    format(b28.28,b15.15,b5.5)
         idbm=nint(idbm*10.0/3.0)
+        if(idbm.lt.0 .or. idbm.gt.60) unpk77_success=.false.
         call unpack28(n28,call_1,unpk28_success) 
         if(.not.unpk28_success) unpk77_success=.false.
         call to_grid4(igrid4,grid4,unpkg4_success)
@@ -375,6 +405,7 @@ subroutine unpack77(c77,nrx,msg,unpk77_success)
         read(c77,2020) n28,npfx,idbm
 2020    format(b28.28,b16.16,b5.5)
         idbm=nint(idbm*10.0/3.0)        
+        if(idbm.lt.0 .or. idbm.gt.60) unpk77_success=.false.
         call unpack28(n28,call_1,unpk28_success) 
         if(.not.unpk28_success) unpk77_success=.false.
         write(crpt,'(i3)') idbm
@@ -824,7 +855,9 @@ subroutine split77(msg,nwords,nw,w)
   iz=j                                          !Message length
   nwords=k                                      !Number of words in msg
   if(nwords.le.0) go to 900
-  nw(k)=len(trim(w(k)))
+  do i=1,nwords
+     nw(i)=len(trim(w(i)))
+  enddo
   msg(iz+1:)='                                     '
   if(nwords.lt.3) go to 900
   call chkcall(w(3),bcall_1,ok1)
@@ -833,7 +866,7 @@ subroutine split77(msg,nwords,nw,w)
      w(2:12)=w(3:13)                    !Move all remaining words down by one
      nwords=nwords-1
   endif
-  
+
 900 return
 end subroutine split77
 
@@ -884,7 +917,7 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
 ! Check 0.3 and 0.4 (ARRL Field Day exchange)
 ! Example message:  WA9XYZ KA1ABC R 16A EMA       28 28 1 4 3 7    71  
 
-  parameter (NSEC=85)      !Number of ARRL Sections
+  parameter (NSEC=86)      !Number of ARRL Sections
   character*13 w(19)
   character*77 c77
   character*6 bcall_1,bcall_2
@@ -892,14 +925,14 @@ subroutine pack77_03(nwords,w,i3,n3,c77)
   logical ok1,ok2
   data csec/                                                         &
        "AB ","AK ","AL ","AR ","AZ ","BC ","CO ","CT ","DE ","EB ",  &       
-       "EMA","ENY","EPA","EWA","GA ","GTA","IA ","ID ","IL ","IN ",  &       
-       "KS ","KY ","LA ","LAX","MAR","MB ","MDC","ME ","MI ","MN ",  &       
+       "EMA","ENY","EPA","EWA","GA ","GH ","IA ","ID ","IL ","IN ",  &
+       "KS ","KY ","LA ","LAX","NS ","MB ","MDC","ME ","MI ","MN ",  &
        "MO ","MS ","MT ","NC ","ND ","NE ","NFL","NH ","NL ","NLI",  &       
-       "NM ","NNJ","NNY","NT ","NTX","NV ","OH ","OK ","ONE","ONN",  &       
+       "NM ","NNJ","NNY","TER","NTX","NV ","OH ","OK ","ONE","ONN",  &
        "ONS","OR ","ORG","PAC","PR ","QC ","RI ","SB ","SC ","SCV",  &       
        "SD ","SDG","SF ","SFL","SJV","SK ","SNJ","STX","SV ","TN ",  &       
        "UT ","VA ","VI ","VT ","WCF","WI ","WMA","WNY","WPA","WTX",  &       
-       "WV ","WWA","WY ","DX ","PE "/
+       "WV ","WWA","WY ","DX ","PE ","NB "/
 
   if(nwords.lt.4 .or. nwords.gt.5) return  
   call chkcall(w(1),bcall_1,ok1)
@@ -1186,7 +1219,7 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
 !             - DX:     rpt serial          R 559 0013
 ! Example message:  TU; W9XYZ K1ABC R 579 MA           1 28 28 1 3 13   74
   
-  parameter (NUSCAN=65)    !Number of US states and Canadian provinces/territories
+  parameter (NUSCAN=171)    !Number of US states and Canadian provinces/territories
   character*13 w(19)
   character*77 c77
   character*6 bcall_1,bcall_2
@@ -1200,7 +1233,18 @@ subroutine pack77_3(nwords,w,i3,n3,c77)
        "NM ","NY ","NC ","ND ","OH ","OK ","OR ","PA ","RI ","SC ",  &
        "SD ","TN ","TX ","UT ","VT ","VA ","WA ","WV ","WI ","WY ",  &
        "NB ","NS ","QC ","ON ","MB ","SK ","AB ","BC ","NWT","NF ",  &
-       "LB ","NU ","YT ","PEI","DC "/
+       "LB ","NU ","YT ","PEI","DC ","DR ","FR ","GD ","GR ","OV ",  &
+       "ZH ","ZL ","X01","X02","X03","X04","X05","X06","X07","X08",  &
+       "X09","X10","X11","X12","X13","X14","X15","X16","X17","X18",  &
+       "X19","X20","X21","X22","X23","X24","X25","X26","X27","X28",  &
+       "X29","X30","X31","X32","X33","X34","X35","X36","X37","X38",  &
+       "X39","X40","X41","X42","X43","X44","X45","X46","X47","X48",  &
+       "X49","X50","X51","X52","X53","X54","X55","X56","X57","X58",  &
+       "X59","X60","X61","X62","X63","X64","X65","X66","X67","X68",  &
+       "X69","X70","X71","X72","X73","X74","X75","X76","X77","X78",  &
+       "X79","X80","X81","X82","X83","X84","X85","X86","X87","X88",  &
+       "X89","X90","X91","X92","X93","X94","X95","X96","X97","X98",  &
+       "X99"/
 
   if(w(1)(1:1).eq.'<' .and. w(2)(1:1).eq.'<') go to 900
   if(nwords.eq.4 .or. nwords.eq.5 .or. nwords.eq.6) then

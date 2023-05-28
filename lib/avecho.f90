@@ -1,4 +1,5 @@
-subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
+subroutine avecho(id2,ndop,nfrit,nauto,navg,nqual,f1,xlevel,snrdb,   &
+     db_err,dfreq,width,bDiskData)
 
   integer TXLENGTH
   parameter (TXLENGTH=27648)           !27*1024
@@ -7,17 +8,43 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
   integer*2 id2(34560)                 !Buffer for Rx data
   real sa(NZ)      !Avg spectrum relative to initial Doppler echo freq
   real sb(NZ)      !Avg spectrum with Dither and changing Doppler removed
+  real, dimension (:,:), allocatable :: sax
+  real, dimension (:,:), allocatable :: sbx
   integer nsum       !Number of integrations
   real dop0          !Doppler shift for initial integration (Hz)
   real dop           !Doppler shift for current integration (Hz)
   real s(8192)
   real x(NFFT)
   integer ipkv(1)
+  logical ex
+  logical*1 bDiskData
   complex c(0:NH)
   equivalence (x,c),(ipk,ipkv)
   common/echocom/nclearave,nsum,blue(NZ),red(NZ)
-  save dop0,sa,sb
+  common/echocom2/fspread_self,fspread_dx
+  data navg0/-1/
+  save dop0,navg0,sax,sbx
 
+  if(navg.ne.navg0) then
+     if(allocated(sax)) deallocate(sax)
+     if(allocated(sbx)) deallocate(sbx)
+     allocate(sax(1:navg,1:NZ))
+     allocate(sbx(1:navg,1:NZ))
+     nsum=0
+     navg0=navg
+  endif
+  
+  fspread=fspread_dx                !### Use the predicted Doppler spread ###
+  if(bDiskData) fspread=width
+  if(nauto.eq.1) fspread=fspread_self
+  inquire(file='fspread.txt',exist=ex)
+  if(ex) then
+     open(39,file='fspread.txt',status='old')
+     read(39,*) fspread
+     close(39)
+  endif
+  fspread=min(max(0.04,fspread),700.0)
+  width=fspread
   dop=ndop
   sq=0.
   do i=1,TXLENGTH
@@ -29,8 +56,8 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
   if(nclearave.ne.0) nsum=0
   if(nsum.eq.0) then
      dop0=dop                             !Remember the initial Doppler
-     sa=0.                                !Clear the average arrays
-     sb=0.
+     sax=0.                               !Clear the average arrays
+     sbx=0.
   endif
 
   x(TXLENGTH+1:)=0.
@@ -44,73 +71,50 @@ subroutine avecho(id2,ndop,nfrit,nqual,f1,xlevel,sigdb,snr,dfreq,width)
   fnominal=1500.0           !Nominal audio frequency w/o doppler or dither
   ia=nint((fnominal+dop0-nfrit)/df)
   ib=nint((f1+dop-nfrit)/df)
-  if(ia.lt.600 .or. ib.lt.600) go to 900
-  if(ia.gt.7590 .or. ib.gt.7590) go to 900
+  if(ia.lt.2048 .or. ib.lt.2048 .or. ia.gt.6144 .or. ib.gt.6144) then
+     snrdb=0.
+     db_err=0.
+     dfreq=0.
+     go to 900
+  endif
 
   nsum=nsum+1
-
+  j=mod(nsum-1,navg)+1
   do i=1,NZ
-     sa(i)=sa(i) + s(ia+i-2048)    !Center at initial doppler freq
-     sb(i)=sb(i) + s(ib+i-2048)    !Center at expected echo freq
+     sax(j,i)=s(ia+i-2048)    !Center at initial doppler freq
+     sbx(j,i)=s(ib+i-2048)    !Center at expected echo freq
+     sa(i)=sum(sax(1:navg,i))
+     sb(i)=sum(sbx(1:navg,i))
   enddo
-
-  call pctile(sb,200,50,r0)
-  call pctile(sb(1800),200,50,r1)
-
-  sum=0.
-  sq=0.
-  do i=1,NZ
-     y=r0 + (r1-r0)*(i-100.0)/1800.0
-     blue(i)=sa(i)/y
-     red(i)=sb(i)/y
-     if(i.le.500 .or. i.ge.3597) then
-        sum=sum+red(i)
-        sq=sq + (red(i)-1.0)**2
-     endif
-  enddo
-  ave=sum/1000.0
-  rms=sqrt(sq/1000.0)
-
-  redmax=maxval(red)
-  ipkv=maxloc(red)
-  fac=10.0/max(redmax,10.0)
-  dfreq=(ipk-2048)*df
-  snr=(redmax-ave)/rms
-
-  sigdb=-99.0
-  if(ave.gt.0.0) sigdb=10.0*log10(redmax/ave - 1.0) - 35.7
-
-  nqual=0
-  if(nsum.ge.2 .and. nsum.lt.4)  nqual=(snr-4)/5
-  if(nsum.ge.4 .and. nsum.lt.8)  nqual=(snr-3)/4
-  if(nsum.ge.8 .and. nsum.lt.12) nqual=(snr-3)/3
-  if(nsum.ge.12) nqual=(snr-2.5)/2.5
-  if(nqual.lt.0)  nqual=0
+  
+  call echo_snr(sa,sb,fspread,blue,red,snrdb,db_err,dfreq,snr_detect)
+  nqual=snr_detect-2
+  if(nqual.lt.0) nqual=0
   if(nqual.gt.10) nqual=10
 
 ! Scale for plotting
+  redmax=maxval(red)
+  fac=10.0/max(redmax,10.0)
   blue=fac*blue
   red=fac*red
-
-  sum=0.
-  do i=ipk,ipk+300
-     if(i.gt.NZ) exit
-     if(red(i).lt.1.0) exit
-     sum=sum+(red(i)-1.0)
-  enddo
-  do i=ipk-1,ipk-300,-1
-     if(i.lt.1) exit
-     if(red(i).lt.1.0) exit
-     sum=sum+(red(i)-1.0)
-  enddo
-  bins=sum/(red(ipk)-1.0)
-  width=df*bins
-  nsmo=max(0.0,0.25*bins)
-
+  nsmo=max(0.0,0.25*width/df)
   do i=1,nsmo
      call smo121(red,NZ)
      call smo121(blue,NZ)
   enddo
 
-900  return
+  ia=50.0/df
+  ib=250.0/df
+  call pctile(red(ia:ib),ib-ia+1,50,bred1)
+  call pctile(blue(ia:ib),ib-ia+1,50,bblue1)
+  ia=1250.0/df
+  ib=1450.0/df
+  call pctile(red(ia:ib),ib-ia+1,50,bred2)
+  call pctile(blue(ia:ib),ib-ia+1,50,bblue2)
+
+  red=red-0.5*(bred1+bred2)
+  blue=blue-0.5*(bblue1+bblue2)
+
+900 call sleep_msec(10)   !Avoid the "blue Decode button" syndrome
+  return
 end subroutine avecho

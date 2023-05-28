@@ -44,7 +44,9 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 
   real ss(184,NSMAX)
   logical baddata,newdat65,newdat9,single_decode,bVHF,bad0,newdat,ex
+  logical lprinthash22
   integer*2 id2(NTMAX*12000)
+  integer nqf(20)
   type(params_block) :: params
   real*4 dd(NTMAX*12000)
   character(len=20) :: datetime
@@ -106,19 +108,19 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
   if(params%nranera.eq.0) ntrials=0
   
   nfail=0
-10 if (params%nagain) then
-     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
-          position='append',iostat=ios)
-  else
-     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',iostat=ios)
-  endif
-  if(ios.ne.0) then
-     nfail=nfail+1
-     if(nfail.le.3) then
-        call sleep_msec(10)
-        go to 10
-     endif
-  endif
+!10 if (params%nagain) then
+!     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',            &
+!          position='append',iostat=ios13)
+!  else
+!     open(13,file=trim(temp_dir)//'/decoded.txt',status='unknown',iostat=ios13)
+!  endif
+!  if(ios13.ne.0) then
+!     nfail=nfail+1
+!     if(nfail.le.3) then
+!        call sleep_msec(10)
+!        go to 10
+!     endif
+!  endif
 
   if(params%nmode.eq.8) then
 ! We're in FT8 mode
@@ -211,7 +213,28 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
           params%nfa,params%nfb,logical(params%nclearave),               &
           single_decode,logical(params%nagain),params%max_drift,         &
           logical(params%newdat),params%emedelay,mycall,hiscall,hisgrid, &
-          params%nQSOProgress,ncontest,logical(params%lapcqonly),navg0)
+          params%nQSOProgress,ncontest,logical(params%lapcqonly),navg0,nqf)
+     params%nclearave=.false.
+
+     if(.not.params%nagain) then
+! Go through identified candidates again, treating each as if it had been
+! double-clicked on the waterfall.
+        do k=1,20
+           if(nqf(k).eq.0) exit
+           if(params%nagain .and. abs(nqf(k)-params%nfqso).gt.params%ntol) cycle
+           nqd=1
+           navg0=0
+           ntol=5
+           call my_q65%decode(q65_decoded,id2,nqd,params%nutc,params%ntr,    &
+                params%nsubmode,nqf(k),ntol,params%ndepth,                   &
+                params%nfa,params%nfb,logical(params%nclearave),             &
+                .true.,.true.,params%max_drift,                              &
+                .false.,params%emedelay,mycall,hiscall,hisgrid,              &
+                params%nQSOProgress,ncontest,logical(params%lapcqonly),      &
+                navg0,nqf)
+        enddo
+     endif
+
      call timer('dec_q65 ',1)
      close(17)
      go to 800
@@ -221,27 +244,30 @@ subroutine multimode_decoder(ss,id2,params,nfsample)
 ! We're in FST4 mode
      ndepth=iand(params%ndepth,3)
      iwspr=0
+     lprinthash22=.false.
      params%nsubmode=0
      call timer('dec_fst4',0)
      call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfa,params%nfb,                  &
           params%nfqso,ndepth,params%ntr,params%nexp_decode,          &
           params%ntol,params%emedelay,logical(params%nagain),         &
-          logical(params%lapcqonly),mycall,hiscall,iwspr)
+          logical(params%lapcqonly),mycall,hiscall,iwspr,lprinthash22)
      call timer('dec_fst4',1)
      go to 800
   endif
 
-    if(params%nmode.eq.241) then
+    if(params%nmode.eq.241 .or. params%nmode.eq.242) then
 ! We're in FST4W mode
      ndepth=iand(params%ndepth,3)
      iwspr=1
+     lprinthash22=.false.
+     if(params%nmode.eq.242) lprinthash22=.true. 
      call timer('dec_fst4',0)
      call my_fst4%decode(fst4_decoded,id2,params%nutc,                &
           params%nQSOProgress,params%nfa,params%nfb,                  &
           params%nfqso,ndepth,params%ntr,params%nexp_decode,          &
           params%ntol,params%emedelay,logical(params%nagain),         &
-          logical(params%lapcqonly),mycall,hiscall,iwspr)
+          logical(params%lapcqonly),mycall,hiscall,iwspr,lprinthash22)
      call timer('dec_fst4',1)
      go to 800
   endif
@@ -523,10 +549,11 @@ contains
        write(*,1010) params%nutc,snr,dt,freq,csync,decoded,cflags
 1010   format(i4.4,i4,f5.1,i5,1x,a2,1x,a22,1x,a3)
     endif
-    write(13,1012) params%nutc,nint(sync),snr,dt,float(freq),drift,    &
-         decoded,ft,nsum,nsmo
-1012 format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
-    call flush(6)
+    !if(ios13.eq.0) write(13,1012) params%nutc,nint(sync),snr,dt,    &
+    !     float(freq),drift,decoded,ft,nsum,nsmo
+!1012! format(i4.4,i4,i5,f6.2,f8.0,i4,3x,a22,' JT65',3i3)
+    call wsjtx_decoded(params%nutc,snr,dt,freq,decoded)	
+	call flush(6)
 
 !$omp end critical(decode_results)
     select type(this)
@@ -550,9 +577,11 @@ contains
     !$omp critical(decode_results)
     write(*,1000) params%nutc,snr,dt,nint(freq),decoded
 1000 format(i4.4,i4,f5.1,i5,1x,'@ ',1x,a22)
-    write(13,1002) params%nutc,nint(sync),snr,dt,freq,drift,decoded
-1002 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
-    call flush(6)
+    !if(ios13.eq.0) write(13,1002) params%nutc,nint(sync),snr,dt,freq,  &
+    !     drift,decoded
+!1002 format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a22,' JT9')
+    call wsjtx_decoded(params%nutc,snr,dt,nint(freq),decoded)	
+	call flush(6)
     !$omp end critical(decode_results)
     select type(this)
     type is (counting_jt9_decoder)
@@ -614,10 +643,10 @@ contains
 1000 format(i6.6,i4,f5.1,i5,' ~ ',1x,a22,1x,a2)
     if(i0.gt.0) write(*,1001) params%nutc,snr,dt,nint(freq),decoded0,annot
 1001 format(i6.6,i4,f5.1,i5,' ~ ',1x,a37,1x,a2)
-    !write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
-	call wsjtx_decoded(params%nutc,snr,dt,nint(freq),decoded0)
-1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
+    !if(ios13.eq.0) write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
+!1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT8')
 
+	call wsjtx_decoded(params%nutc,snr,dt,nint(freq),decoded0)													   
     if(ncontest.eq.6) then
        i1=index(decoded0,' ')
        i2=i1 + index(decoded0(i1+1:),' ')
@@ -652,7 +681,7 @@ contains
     endif
     
     call flush(6)
-    !call flush(13)
+ !   if(ios13.eq.0) call flush(13)
     
     select type(this)
     type is (counting_ft8_decoder)
@@ -687,12 +716,13 @@ contains
 
     write(*,1001) params%nutc,snr,dt,nint(freq),decoded0,annot
 1001 format(i6.6,i4,f5.1,i5,' + ',1x,a37,1x,a2)
-    !write(13,1002) params%nutc,nint(sync),snr,dt,freq,0,decoded0
+ !   if(ios13.eq.0) then
+ !      write(13,1002,err=10) params%nutc,nint(sync),snr,dt,freq,0,decoded0
+!1002   format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT4')
+ !      flush(13)
+ !   endif
     call wsjtx_decoded(params%nutc,snr,dt,nint(freq),decoded0)
-1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FT4')
-    
-    call flush(6)
-    call flush(13)
+10  call flush(6)
     
     select type(this)
     type is (counting_ft4_decoder)
@@ -703,7 +733,7 @@ contains
   end subroutine ft4_decoded
 
   subroutine fst4_decoded (this,nutc,sync,nsnr,dt,freq,decoded,nap,   &
-       qual,ntrperiod,lwspr,fmid,w50)
+       qual,ntrperiod,fmid,w50)
 
     use fst4_decode
     implicit none
@@ -718,7 +748,6 @@ contains
     integer, intent(in) :: nap
     real, intent(in) :: qual
     integer, intent(in) :: ntrperiod
-    logical, intent(in) :: lwspr
     real, intent(in) :: fmid
     real, intent(in) :: w50
 
@@ -736,13 +765,15 @@ contains
     if(ntrperiod.lt.60) then
        write(line,1001) nutc,nsnr,dt,nint(freq),decoded0,annot
 1001   format(i6.6,i4,f5.1,i5,' ` ',1x,a37,1x,a2)
-       write(13,1002) nutc,nint(sync),nsnr,dt,freq,0,decoded0
-1002   format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FST4')
+!       if(ios13.eq.0) write(13,1002) nutc,nint(sync),nsnr,dt,freq,0,decoded0
+!1002   format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' FST4')
+        call wsjtx_decoded(nutc,nsnr,dt,nint(freq),decoded0)
     else
        write(line,1003) nutc,nsnr,dt,nint(freq),decoded0,annot
 1003   format(i4.4,i4,f5.1,i5,' ` ',1x,a37,1x,a2,2f7.3)
-       write(13,1004) nutc,nint(sync),nsnr,dt,freq,0,decoded0
-1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' FST4')
+!       if(ios13.eq.0) write(13,1004) nutc,nint(sync),nsnr,dt,freq,0,decoded0
+!1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' FST4')
+       call wsjtx_decoded(nutc,nsnr,dt,nint(freq),decoded0)
     endif
 
     if(fmid.ne.-999.0) then
@@ -754,7 +785,7 @@ contains
 1005 format(a70)
 
     call flush(6)
-    call flush(13)
+!    if(ios13.eq.0) call flush(13)
 
     select type(this)
     type is (counting_fst4_decoder)
@@ -792,17 +823,17 @@ contains
     if(ntrperiod.lt.60) then
        write(*,1001) nutc,nsnr,dt,nint(freq),decoded,cflags
 1001   format(i6.6,i4,f5.1,i5,' : ',1x,a37,1x,a3)
-    write(13,1002) nutc,nint(snr1),nsnr,dt,freq,0,decoded
-1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
+!    if(ios13.eq.0) write(13,1002) nutc,nint(snr1),nsnr,dt,freq,0,decoded
+!1002 format(i6.6,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
     else
        write(*,1003) nutc,nsnr,dt,nint(freq),decoded,cflags
 1003   format(i4.4,i4,f5.1,i5,' : ',1x,a37,1x,a3)
-       write(13,1004) nutc,nint(snr1),nsnr,dt,freq,0,decoded
-1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
+!       if(ios13.eq.0) write(13,1004) nutc,nint(snr1),nsnr,dt,freq,0,decoded
+!1004   format(i4.4,i4,i5,f6.1,f8.0,i4,3x,a37,' Q65')
 
     endif
     call flush(6)
-    call flush(13)
+!    if(ios13.eq.0) call flush(13)
 
     select type(this)
     type is (counting_q65_decoder)
