@@ -86,5 +86,32 @@ std::vector<float> wsjtx_encode::encode_wspr(wsjtxMode mode, int frequency, std:
 {
 	std::vector<float> signal;
 
+	std::memset(msg, 0, 38);
+	std::memset(sendmsg, 0, 38);
+	strcpy(msg, message.c_str());
+	
+	// Setup Waveform Parameters based on mainwindow.cpp analysis
+	// See: on_actionWSPR_triggered() and transmit() -> sendMessage()
+	int nsym = 162;			 // WSPR symbol count
+	int nsps = 8192;		 // Samples per symbol (12000 Hz / 1.46 Hz baud)
+	int nwave = nsym * nsps; // Total samples = 1,327,104
+	float fsample = 12000.0; // WSPR audio sample rate (Hz)
+	int hmod = 1;			 // Tone spacing multiplier (Standard WSPR)
+	float f0 = 1500.0;		 // Center audio frequency (Hz)
+	int icmplx = 0;			 // 0 = Real output (mono audio)
+	
+	genwspr_(msg, sendmsg, const_cast<int *>(itone), 37, 37);
+	printf("FSK tones: ");
+	for (int j = 0; j < nsym; ++j)
+	{
+		printf("%d", itone[j]);
+	}
+	printf("\n");
+
+	float *xjunk = new float[nwave];
+	genwave_(itone, &nsym, &nsps, &nwave, &fsample, &hmod, &f0, &icmplx, xjunk, signal.data());
+	delete[] xjunk;
+	
+	printf("wspr frequency %d number of tones %d, samplerate %6.0f no samples %d\n", frequency, nsym, fsample, nwave);
 	return signal;
 }

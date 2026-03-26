@@ -1,15 +1,15 @@
 #include "wsjtx_lib.h"
+#include "constants.h"
 #include "wsjtx_decode.h"
 #include "wsjtx_encode.h"
-#include "constants.h"
-#include <memory>
 #include <fftw3.h>
+#include <memory>
 
 extern DataQueue<WsjtxMessage> WsjtxMessageQueue;
 /*
 	To test the library, include "wsjtx_lib.h" from an application project
 	and call wsjtx_libTest().
-	
+
 	Do not forget to add the library to Project Dependencies in Visual Studio.
 */
 
@@ -27,7 +27,7 @@ wsjtx_lib::wsjtx_lib()
 
 bool wsjtx_lib::pullMessage(WsjtxMessage &msg)
 {
-	
+
 	return WsjtxMessageQueue.pull(msg);
 }
 
@@ -66,20 +66,27 @@ std::vector<float> wsjtx_lib::encode(wsjtxMode mode, int frequency, std::string 
 	std::vector<float> ret;
 	switch (mode)
 	{
-		case FT8:
-		{
-			std::unique_ptr<wsjtx_encode> ptr;
+	case FT8: {
+		std::unique_ptr<wsjtx_encode> ptr;
 
-			ptr = std::make_unique<wsjtx_encode>();
-			return ptr->encode_ft8(mode, frequency, message, messagesend);
-		}
-		case FT4:
-		{
-			std::unique_ptr<wsjtx_encode> ptr;
+		ptr = std::make_unique<wsjtx_encode>();
+		return ptr->encode_ft8(mode, frequency, message, messagesend);
+	}
+	case FT4: {
+		std::unique_ptr<wsjtx_encode> ptr;
 
-			ptr = std::make_unique<wsjtx_encode>();
-			return ptr->encode_ft4(mode, frequency, message, messagesend);
-		}
+		ptr = std::make_unique<wsjtx_encode>();
+		return ptr->encode_ft4(mode, frequency, message, messagesend);
+	}
+	case WSPR: {
+		std::unique_ptr<wsjtx_encode> ptr;
+
+		ptr = std::make_unique<wsjtx_encode>();
+		return ptr->encode_wspr(mode, frequency, message, messagesend);
+	}
+	default: {
+		return ret;
+	}
 	}
 	// unsuported modes return empty vector
 	return ret;

@@ -73,8 +73,8 @@ struct cand {
     float  sync;
 };
 
-
-
-
-
-
+int wspr_decode(std::vector<std::complex<float>> &iqdat,
+				int samples,
+				decoder_options options,
+				std::vector<struct decoder_results> &decodes,
+				int threads);

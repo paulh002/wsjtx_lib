@@ -53,7 +53,8 @@ void wsjtx_decoded_(int *nutc, int *snr, float *dt, int *freq, char *decoded, in
 
 void wstjx_decode::decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, int threads)
 {
-	samplebuffer.push(move(audiosamples));
+	samplebuffer.push(std::move(audiosamples));
+	std::vector<struct decoder_results> decodes;
 
 	std::memset(&params, 0, sizeof(params));
 	params.nmode = 8;
@@ -123,7 +124,7 @@ void wstjx_decode::decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, i
 	case JT65JT9:
 		params.nmode = 65 + 9;
 		return; // not yet implememted
-	case WSPR:
+	case WSPR: 
 		return; // in this class
 	}
 
@@ -134,7 +135,8 @@ void wstjx_decode::decode(wsjtxMode mode, WsjTxVector &audiosamples, int freq, i
 	}
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	time_t tt = std::chrono::system_clock::to_time_t(now);
-	tm local_tm = *localtime(&tt);
+	// tm local_tm = *localtime(&tt);
+	tm local_tm = *gmtime(&tt);
 	printf("start decode %02d:%02d:%02d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 	params.nutc = local_tm.tm_hour * 10000 + local_tm.tm_min * 100 + local_tm.tm_sec;
 	
@@ -225,7 +227,8 @@ void wstjx_decode::decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq
 	
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	time_t tt = std::chrono::system_clock::to_time_t(now);
-	tm local_tm = *localtime(&tt);
+	//tm local_tm = *localtime(&tt);
+	tm local_tm = *gmtime(&tt);
 	printf("start decode %02d:%02d:%02d\n", local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec);
 	params.nutc = local_tm.tm_hour * 10000 + local_tm.tm_min * 100 + local_tm.tm_sec;
 
