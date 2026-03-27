@@ -406,6 +406,29 @@ void subtract_signal2(std::vector<std::complex<float>> &iqdat,
     return;
 }
 
+class IntArray2D
+{
+	std::vector<int> data_;
+	int height_;
+	int width_;
+
+  public:
+	IntArray2D(int height, int width)
+		: data_(height * width), height_(height), width_(width)
+	{
+	}
+
+	int *operator[](int index)
+	{
+		return &data_[index * width_];
+	}
+
+	const int *operator[](int index) const
+	{
+		return &data_[index * width_];
+	}
+};
+
 int wspr_decode(std::vector<std::complex<float>> &iqdat,
 				int samples,
 				decoder_options options,
@@ -506,10 +529,15 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
 
     /* FFT output alloc */
     const int blocks = 4 * floor(samples / 512) - 1;
-    float ps[512][blocks];
-    memset(ps, 0.0, sizeof(float) * 512 * blocks);
-
-    /* Main loop starts here */
+	IntArray2D ps(512, blocks);
+	//float ps[512][blocks];
+    //memset(ps, 0.0, sizeof(float) * 512 * blocks);
+	for (int i = 0;i < 512; i++)
+	{
+		for (int ii = 0; ii < blocks; ii++)
+			ps[i][ii] = 0.0;
+	}
+	/* Main loop starts here */
     for (int ipass = 0; ipass < options.npasses; ipass++) {
         if (ipass == 1 && uniques == 0)
             break;
@@ -874,6 +902,5 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
         }
         fclose(fhash);
     }
-
-    return 0;
+	return 0;
 }
