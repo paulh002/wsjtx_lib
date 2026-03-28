@@ -1042,5 +1042,7 @@ std::vector<decoder_results> load_file()
 	{
 		printf("call: %s message %s\n", con.call, con.message);
 	}
+	free(idat);
+	free(qdat);
 	return decodes;
 }
