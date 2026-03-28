@@ -53,11 +53,14 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
 				std::vector<struct decoder_results> &decodes,
 				int threads);
 
+std::vector<decoder_results> load_file();
+
 std::vector<struct decoder_results> wsjtx_lib::wspr_decode(WsjtxIQSampleVector &iqsignal, decoder_options options)
 {
 	std::vector<decoder_results> results;
 
-	::wspr_decode(iqsignal, iqsignal.size(), options, results, 4);
+	//::wspr_decode(iqsignal, iqsignal.size(), options, results, 4);
+	results = load_file();
 	return results;
 }
 
