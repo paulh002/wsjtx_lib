@@ -1017,9 +1017,9 @@ std::vector<decoder_results> load_file()
 	decoder_options options;
 	std::vector<struct decoder_results> decodes;
 
-	options.freq = 1500;			 // Dial frequency
-	strcpy(options.rcall, "PA0PHH"); // Callsign of the RX station
-	strcpy(options.rloc, "JO22RN");	 // Locator of the RX station
+	options.freq = 35686000;			 // Dial frequency
+	strcpy(options.rcall, ""); // Callsign of the RX station
+	strcpy(options.rloc, "");	 // Locator of the RX station
 	options.quickmode = 0;			 // Decoder option & tweak
 	options.usehashtable = 0;		 //  ''
 	options.npasses = 3;			 //  ''

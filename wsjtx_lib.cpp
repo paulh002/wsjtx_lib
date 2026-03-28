@@ -59,8 +59,8 @@ std::vector<struct decoder_results> wsjtx_lib::wspr_decode(WsjtxIQSampleVector &
 {
 	std::vector<decoder_results> results;
 
-	//::wspr_decode(iqsignal, iqsignal.size(), options, results, 4);
-	results = load_file();
+	::wspr_decode(iqsignal, iqsignal.size(), options, results, 4);
+	//results = load_file();
 	return results;
 }
 
