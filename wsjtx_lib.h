@@ -21,8 +21,6 @@ class decoder_results
 	char loc[7];
 	char pwr[3];
 	int cycles;
-
-	decoder_results();
 };
 
 class decoder_options
