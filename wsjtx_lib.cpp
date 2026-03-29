@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "wsjtx_decode.h"
 #include "wsjtx_encode.h"
+#include "wsprd.h"
 #include <fftw3.h>
 #include <memory>
 
@@ -55,11 +56,11 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
 
 std::vector<decoder_results> load_file();
 
-std::vector<struct decoder_results> wsjtx_lib::wspr_decode(WsjtxIQSampleVector &iqsignal, decoder_options options)
+std::vector<struct decoder_results> wsjtx_lib::wspr_decode(IntWsjTxVector &audiosamples, decoder_options options)
 {
 	std::vector<decoder_results> results;
 
-	::wspr_decode(iqsignal, iqsignal.size(), options, results, 4);
+	results =  decode_wspr(audiosamples);
 	//results = load_file();
 	return results;
 }

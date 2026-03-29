@@ -82,6 +82,6 @@ class wsjtx_lib
 	void decode(wsjtxMode mode, IntWsjTxVector &audiosamples, int freq, int thread = 1);
 	std::vector<float> encode(wsjtxMode mode, int frequency, std::string message, std::string &messagesend);
 	bool pullMessage(WsjtxMessage &msg);
-	std::vector<decoder_results> wspr_decode(WsjtxIQSampleVector &iqsignal, decoder_options options);
+	std::vector<struct decoder_results> wspr_decode(IntWsjTxVector &audiosamples, decoder_options options);
 };
 
