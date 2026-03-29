@@ -1083,12 +1083,17 @@ unsigned long loadaudiodata(IntWsjTxVector &audiosamples, int ntrmin, float *ida
 	FILE *fp;
 	short int *buf2;
 
-	if (audiosamples.size() == 0 || audiosamples.size() < npoints)
+	if (audiosamples.size() == 0)
 	{
 		fprintf(stderr, "No or to less data %ld needed %ld\n", audiosamples.size(), npoints);
 		return 1;
 	}
-
+	if (audiosamples.size() < npoints)
+	{
+		for (int i = audiosamples.size(); i < npoints; i++)
+			audiosamples.push_back(0);
+		fprintf(stderr, "data %ld needed %ld\n", audiosamples.size(), npoints);
+	}
 	realin = (float *)fftwf_malloc(sizeof(float) * nfft1);
 	fftout = (fftwf_complex *)fftwf_malloc(sizeof(fftwf_complex) * (nfft1 / 2 + 1));
 	PLAN1 = fftwf_plan_dft_r2c_1d(nfft1, realin, fftout, PATIENCE);
