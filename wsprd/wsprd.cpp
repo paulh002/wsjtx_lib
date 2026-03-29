@@ -1085,7 +1085,7 @@ unsigned long loadaudiodata(IntWsjTxVector &audiosamples, int ntrmin, float *ida
 
 	if (audiosamples.size() == 0 || audiosamples.size() < npoints)
 	{
-		fprintf(stderr, "No or to less data %ld read\n", audiosamples.size());
+		fprintf(stderr, "No or to less data %ld needed %ld\n", audiosamples.size(), npoints);
 		return 1;
 	}
 
