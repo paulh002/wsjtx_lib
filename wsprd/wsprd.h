@@ -73,4 +73,4 @@ struct cand {
     float  sync;
 };
 
-std::vector<decoder_results> decode_wspr(IntWsjTxVector &audiosamples);
+std::vector<decoder_results> decode_wspr(decoder_options options, IntWsjTxVector &audiosamples);

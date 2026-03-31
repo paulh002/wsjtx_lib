@@ -60,7 +60,7 @@ std::vector<struct decoder_results> wsjtx_lib::wspr_decode(IntWsjTxVector &audio
 {
 	std::vector<decoder_results> results;
 
-	results =  decode_wspr(audiosamples);
+	results = decode_wspr(options, audiosamples);
 	//results = load_file();
 	return results;
 }
