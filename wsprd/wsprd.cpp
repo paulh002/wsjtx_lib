@@ -1167,11 +1167,6 @@ std::vector<decoder_results> decode_wspr(IntWsjTxVector &audiosamples)
 	}
 
 	wspr_decode(iqdat, iqdat.size(), options, decodes, 4);
-	printf("amount decodes %ld\n", decodes.size());
-	for (auto con : decodes)
-	{
-		printf("call: %s message %s\n", con.call, con.message);
-	}
 	free(idat);
 	free(qdat);
 	return decodes;
