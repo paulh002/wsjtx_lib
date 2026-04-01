@@ -944,11 +944,7 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
 					allfreqs[uniques] = freq;
 					uniques++;
 
-					// double dialfreq = (double)options.freq / 1e6;
-					// double freq_print = dialfreq + (1500.0 + freq) / 1e6;
-
 					long freq_print = options.freq + 1500.0 + floor(freq);
-
 					struct decoder_results temp;
 
 					temp.sync = candidates[j].sync;
@@ -963,18 +959,6 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
 					strcpy(temp.loc, loc);
 					strcpy(temp.pwr, pwr);
 					decodes.push_back(temp);
-
-					/*decodes[uniques - 1].sync   = candidates[j].sync;
-					decodes[uniques - 1].snr    = candidates[j].snr;
-					decodes[uniques - 1].dt     = shift * DT - 2.0;
-					decodes[uniques - 1].freq   = freq_print;
-					decodes[uniques - 1].drift  = drift;
-					decodes[uniques - 1].cycles = cycles;
-					decodes[uniques - 1].jitter = ii;
-					strcpy(decodes[uniques - 1].message, call_loc_pow);
-					strcpy(decodes[uniques - 1].call, call);
-					strcpy(decodes[uniques - 1].loc, loc);
-					strcpy(decodes[uniques - 1].pwr, pwr); */
 				}
 			}
 		}
