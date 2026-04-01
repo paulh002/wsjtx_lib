@@ -947,7 +947,7 @@ int wspr_decode(std::vector<std::complex<float>> &iqdat,
 					// double dialfreq = (double)options.freq / 1e6;
 					// double freq_print = dialfreq + (1500.0 + freq) / 1e6;
 
-					double freq_print = (double)options.freq + 1500.0 + freq;
+					long freq_print = options.freq + 1500.0 + floor(freq);
 
 					struct decoder_results temp;
 
