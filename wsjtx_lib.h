@@ -10,7 +10,7 @@ typedef std::vector<std::complex<float>> WsjtxIQSampleVector;
 class decoder_results
 {
   public:
-	double freq;
+	long freq;
 	float sync;
 	float snr;
 	float dt;
@@ -26,7 +26,7 @@ class decoder_results
 class decoder_options
 {
   public:
-	int freq;		  // Dial frequency
+	long freq;		  // Dial frequency
 	char rcall[13];   // Callsign of the RX station
 	char rloc[7];	 // Locator of the RX station
 	int quickmode;	// Decoder option & tweak
