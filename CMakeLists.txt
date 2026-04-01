@@ -10,7 +10,7 @@ set_source_files_properties (lib/decoder.f90 PROPERTIES COMPILE_FLAGS "-Wno-unus
 set (CMAKE_Fortran_FLAGS_DEBUG   "${CMAKE_Fortran_FLAGS_DEBUG} -g -fbacktrace -fbounds-check -fno-f2c -ffpe-summary=invalid,zero,overflow,underflow ${General_FFLAGS}")
 add_definitions (-DCMAKE_BUILD -DBIGSYM=1)
 set (wsjt_FSRCS
-  # put module sources first in the hope that they get rebuilt before use
+  # put module sources first in the hope that they get rebuilt before use.
   lib/types.f90
   lib/C_interface_module.f90
   lib/shmem.f90

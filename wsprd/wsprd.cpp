@@ -1248,18 +1248,6 @@ std::vector<decoder_results> decode_wspr(decoder_options options, IntWsjTxVector
 	std::vector<std::complex<float>> iqdat;
 	std::vector<struct decoder_results> decodes;
 
-	/*
-	decoder_options options;
-	
-	options.freq = 35686000;   // Dial frequency
-	strcpy(options.rcall, ""); // Callsign of the RX station
-	strcpy(options.rloc, "");  // Locator of the RX station
-	options.quickmode = 0;	   // Decoder option & tweak
-	options.usehashtable = 0;  //  ''
-	options.npasses = 3;	   //  ''
-	options.subtraction = 1;   //
-	*/
-	
 	idat = (float *)malloc(46080 * sizeof(float));
 	qdat = (float *)malloc(46080 * sizeof(float));
 	loadaudiodata(audiosamples, 2, idat, qdat);
