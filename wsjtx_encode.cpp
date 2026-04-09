@@ -95,7 +95,7 @@ std::vector<float> wsjtx_encode::encode_wspr(wsjtxMode mode, int frequency, std:
 	int nsym = 162;			 // WSPR symbol count
 	int nsps = 8192;		 // Samples per symbol (12000 Hz / 1.46 Hz baud)
 	int nwave = nsym * nsps; // Total samples = 1,327,104
-	float fsample = 12000.0; // WSPR audio sample rate (Hz)
+	float fsample = 48000.0; // WSPR audio sample rate (Hz)
 	int hmod = 1;			 // Tone spacing multiplier (Standard WSPR)
 	float f0 = 1500.0;		 // Center audio frequency (Hz)
 	int icmplx = 0;			 // 0 = Real output (mono audio)
